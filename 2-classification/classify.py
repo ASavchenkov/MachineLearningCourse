@@ -4,35 +4,22 @@ import matplotlib.pyplot as plt
 import scipy.optimize as opt
 
 
-reg_factor = 0.1 #only for the second part of the homework
 
 #returns a numpy array
 def load_data():
     return np.loadtxt('../data/ex2data2.txt', delimiter = ',')
 
-#write the hypothesis function here
 def hypothesis(theta,X):
-    z = np.matmul(X,theta)
-    return 1/(1+np.exp(-z))
+    #insert code here
+    return 0.5
 
-#write the cost function here
 def cost(theta,X,Y):
-    theta = np.expand_dims(theta,1)
-    h = hypothesis(theta,X)
-    cost = -Y*np.log(h) - (1-Y)*np.log(1-h)
+    #insert code here
+    return 0
 
-    regularization = reg_factor * np.mean(theta*theta)/2 #only for the second half of the assignment
-
-    finalCost = np.mean(cost) + regularization
-    return finalCost
-
-#write the gradient function here
 def gradient(theta, X,Y):
-    theta = np.expand_dims(theta,1)
-    h = hypothesis(theta,X)
-    err = h-Y
-    grad = np.matmul(X.T,err)/X.shape[0] + reg_factor/X.shape[0]*theta
-    return grad
+    #insert code here
+    return 0
 
 def plot_points(points,ax):
     x = points[:,0]
@@ -41,11 +28,8 @@ def plot_points(points,ax):
     ax.scatter(x,y,label,c=plt.cm.coolwarm(label))
 
 def mapFeatures(x,y, order):
-    colList = list()
-    for i in range(1,order):
-       for j in range(i+1):
-           colList.append(np.power(x,j)*np.power(y,i-j))
-    return np.array(colList).T 
+    #insert code here
+    return np.array(x,y).T
 
 if __name__ == '__main__':
     
@@ -65,25 +49,21 @@ if __name__ == '__main__':
     
     #Then split the data such that the first two columns
     #are one matrix, and the third is it's own array
-    X = data[:,:2]
-    Y = data[:,2:]
-    
-    #this is for the second half where we add features
-
-    X = mapFeatures(X[:,0],X[:,1],6)
-    print(X.shape)
-
+    X=None
+    Y=None
     #again prepend a column of ones to the front (of X)
-
-    ones = np.ones((num_samples,1))
-    X = np.concatenate((ones,X),axis=1)
 
     #create an array of three theta
     #this time filling it with zeroes.
-    theta = np.zeros((X.shape[1]))
+    theta = None
     
     #This should output 0.693 if everything is correct
     print(cost(theta,X,Y))
+    
+    #instead of doing gradient descent on our own, we're going to start
+    #using other people's tools. We use scipy's fmin_tnc to optimize our
+    #function, but it needs a function, and a gradient function, which 
+    #you need to write above.
 
     thetas = opt.fmin_tnc(func=cost,x0=theta,fprime=gradient,args=(X,Y))
     theta= np.expand_dims(thetas[0],1)
@@ -93,12 +73,14 @@ if __name__ == '__main__':
 
     #plot a surface. I'll give you this one for free too because...
     #again, matplotlib is super obtuse
-    x,y = np.meshgrid(np.linspace(-1,1,100),np.linspace(-1,1,100))
+    xmin,xmax,ymin,ymax = 0,100,0,100
+    x,y = np.meshgrid(np.linspace(xmin,xmax,100),np.linspace(ymin,ymax,100))
+
     dummies = np.stack((x.flatten(), y.flatten()),axis=1)
-    mappedDummies = mapFeatures(dummies[:,0],dummies[:,1],6)
+    mappedDummies = mapFeatures(dummies[:,0],dummies[:,1],6) #ONLY FOR PART 2
     mappedDummies = np.concatenate((np.ones((100*100,1)),mappedDummies),axis=1)
 
-    surf = ax.plot_surface(x,y,np.reshape(hypothesis(theta,mappedDummies),(100,100)),cmap=plt.cm.coolwarm)
+    surf = ax.plot_surface(x,y,np.reshape(hypothesis(theta,dummies),(100,100)),cmap=plt.cm.coolwarm)
     plt.show()
 
     #PART 2:
