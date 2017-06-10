@@ -55,9 +55,10 @@ if __name__ == '__main__':
 
     #create an array of three theta
     #this time filling it with zeroes.
-    theta = [[-24],[0.2],[0.2]]
+    theta = [0,0,0]         #cost function should give 0.693
+    # theta = [-24,0.2,0.2]   #cost function should give 0.218
     
-    #This should output 0.693 if everything is correct
+    #This should output 0.693 for zeroeif everything is correct
     print(cost(theta,X,Y))
     
     #instead of doing gradient descent on our own, we're going to start
