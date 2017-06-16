@@ -62,6 +62,8 @@ def predict_all(theta,X,Y,Y_int):
 if __name__ == '__main__':
     
     X = read_images('../data/train-images-idx3-ubyte')
+    #normalize the data to be between 0 and 1
+    X = X/255
     Y_int = read_labels('../data/train-labels-idx1-ubyte')
     Y = one_hot_encode(Y_int)
 
