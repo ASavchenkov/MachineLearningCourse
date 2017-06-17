@@ -39,6 +39,9 @@ def unpack_parameters(params,shape_groups):
         unpacked_groups.append(unpacked)
     return unpacked_groups
 
+def stats(arr):
+    print(np.mean(arr),np.var(arr))
+
 def sigmoid(z):
     return 1/(1+np.exp(-z))
 
@@ -59,6 +62,7 @@ def forward_neural_network(thetas, biases, X):
     Zs = list()
     As = list()
     cur_a = X
+    As.append(cur_a)
     for theta,bias in zip(thetas,biases):
         z,a = nn_layer_forward(theta,bias,cur_a)
         Zs.append(z)
@@ -79,15 +83,16 @@ def cost(params,shapes,X,Y):
     #the flattened parameters are also convenient for calculating regularization
 
     finalCost = np.mean(cost) + regularization
-    print(finalCost)
+    # print(finalCost)
     return finalCost
    
 
 def gradient(params, shapes, X, Y):
     thetas, biases = unpack_parameters(params,shapes)
     Zs,As = forward_neural_network(thetas,biases,X)
+    stats(As[1])
     #since we're going backwards it makes iterating easier
-    Zs,As = list(reversed(Zs)), list(reversed(As))
+    Zs,As,thetas,biases = [list(reversed(l)) for l in (Zs,As,thetas,biases)]
     deltas = list()
 
     #calculate gradient at last layer using the cost function gradient
@@ -95,14 +100,19 @@ def gradient(params, shapes, X, Y):
     deltas.append(cur_delta)
     theta_grads, bias_grads = list(), list()
     
-    for z,a,theta,bias in zip(Zs[1:],As[1:],thetas[:-1], biases[:-1]):
-        theta_grads.append(np.matmul(cur_delta.T,a).T)
-        bias_grads.append(cur_delta)
-
-        cur_delta = cur_delta * (np.matmul(sigmoid_grad(z), theta) + bias)
+    for z,theta,bias in zip(Zs[1:],thetas[:-1], biases[:-1]):
+        cur_delta = np.matmul(cur_delta, theta.T) * sigmoid_grad(z)
         deltas.append(cur_delta)
-    
+
+    for delta, a in zip(deltas,As[1:]):
+        theta_grads.append(np.matmul(delta.T,a).T)
+        bias_grads.append(np.sum(delta,axis=0))
+        
+        # print(theta_grads[-1].shape,bias_grads[-1].shape)
+
     packed_grads = pack_parameters(theta_grads,bias_grads)
+    packed_grads = packed_grads/0.005
+    # stats(packed_grads)
     return packed_grads
 
 # def predict_all(theta,X,Y,Y_int):
@@ -158,7 +168,7 @@ if __name__ == '__main__':
 
     # predict_all(theta,X,Y,Y_int) 
 
-    # fmin = minimize(fun=cost, x0=packed, args=(shapes, X,Y), method='TNC', jac=gradient)#, options={'maxiter':40})
+    fmin = minimize(fun=cost, x0=packed, args=((theta_shapes,bias_shapes), X,Y), method='TNC', jac=gradient)#, options={'maxiter':40})
     # theta = fmin.x
     # predict_all(theta,X,Y,Y_int)
     # print(cost(theta,X,Y))
