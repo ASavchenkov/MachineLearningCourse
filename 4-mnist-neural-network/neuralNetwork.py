@@ -2,7 +2,7 @@ import struct
 import numpy as np
 from scipy.optimize import minimize
 
-reg_factor = 0.0 #only for the second part of the homework
+reg_factor = 0.0 #not necessary this time. I believe you know how to do regularization
 LEARNING_RATE=0.5
 
 def read_images(filename):
@@ -46,77 +46,41 @@ def stats(arr):
 def sigmoid(z):
     return 1/(1+np.exp(-z))
 
+#YOU NEED TO WRITE THIS----------------------------------
 def sigmoid_grad(x):
-    return sigmoid(x)*(1-sigmoid(x))
+    return x
 
+#YOU NEED TO WRITE THIS----------------------------------
 #outputs a tuple z,a for gradient descent
 def nn_layer_forward(theta,bias,x):
-    z = np.matmul(x,theta)
-    a = sigmoid(z)
-    return z,a
+    return None
 
+
+#YOU NEED TO WRITE THIS----------------------------------
 #this should give not just the hypothesis
 #but also the z and a in each layer.
 #(we need these for backpropagation)
 #(remember that X is a sort of "a0",
 #so you should have one extra "a")
 def forward_neural_network(thetas, biases, X):
-     
-    Zs = list()
-    As = list()
-    cur_a = X
-    As.append(cur_a)
-    for theta,bias in zip(thetas,biases):
-        z,a = nn_layer_forward(theta,bias,cur_a)
-        Zs.append(z)
-        As.append(a)
-        cur_a = a
+    return None
 
-    return Zs,As #the last element of As is the "hypothesis"
-
+#YOU NEED TO WRITE THIS----------------------------------
 #the cost function, should take params, unpack them based on the
 #shapes of your parameters, then calculate the cost
 def cost(params,shapes,X,Y):
     thetas, biases = unpack_parameters(params,shapes)
+    return 0
 
-    Zs,As = forward_neural_network(thetas,biases,X)
-    h = As[-1] #we only care about the last value in the cost function
-    cost = -Y*np.log(h) - (1-Y)*np.log(1-h)
-
-    regularization = reg_factor * np.mean(params*params)/2
-    #the flattened parameters are also convenient for calculating regularization
-
-    finalCost = np.mean(cost) + regularization
-    print(finalCost)
-    calculate_correct(h,Y)
-    return finalCost
+    #also print out the percent correct (defined below)
    
+#YOU NEED TO WRITE THIS----------------------------------
 #this is the tough one. I would suggest doing the math manually.
 #if you want to look at a generic solution though feel free to look
 #at the solution branch
 def gradient(params, shapes, X, Y):
     thetas, biases = unpack_parameters(params,shapes)
-    Zs,As = forward_neural_network(thetas,biases,X)
-    #since we're going backwards it makes iterating easier
-    Zs,As,thetas,biases = [list(reversed(l)) for l in (Zs,As,thetas,biases)]
-    deltas = list()
-
-    #calculate gradient at last layer using the cost function gradient
-    cur_delta = (As[0]-Y)*sigmoid_grad(Zs[0])
-    deltas.append(cur_delta)
-    theta_grads, bias_grads = list(), list()
-
-    for z,theta,bias in zip(Zs[1:],thetas[:-1], biases[:-1]):
-        cur_delta = np.matmul(cur_delta, theta.T) * sigmoid_grad(z)
-        deltas.append(cur_delta)
-    
-    for delta, a in zip(deltas,As[1:]):
-        theta_grads.append(np.matmul(delta.T,a).T/delta.shape[0])
-        bias_grads.append(np.sum(delta,axis=0)/delta.shape[0])
-    theta_grads, bias_grads = [list(reversed(l)) for l in (theta_grads,bias_grads)]
-    packed_grads = pack_parameters(theta_grads,bias_grads)
-    packed_grads = packed_grads*LEARNING_RATE
-    return packed_grads
+    return np.zeros_like(params)
 
 def calculate_correct(h,Y):
     h_int = np.argmax(h,axis=1)
@@ -162,7 +126,9 @@ if __name__ == '__main__':
     gradient(packed,(theta_shapes,bias_shapes),X,Y)
 
 
-
+    #should max out around 99 percent.
+    #BFGS isn't the best way to optimize neural networks though, so it could "crash" if it gets a "nan"
+    #somewhere. If it seems to be training fine, and fails suddenly, just give it another go.
     fmin = minimize(fun=cost, x0=packed, args=((theta_shapes,bias_shapes), X,Y), method='L-BFGS-B', jac=gradient)
 
 
