@@ -19,30 +19,17 @@ def read_labels(filename):
 
 #write the hypothesis function here
 def hypothesis(theta,X):
-    z = np.matmul(X,theta)
-    return 1/(1+np.exp(-z))
+    return null
 
 #write the cost function here
 #scipy's minimize flattens arrays for whatever reason,
 #so you have to reshape them
 def cost(theta,X,Y):
-    theta = np.reshape(theta,(785,10))
-    h = hypothesis(theta,X)
-    cost = -Y*np.log(h) - (1-Y)*np.log(1-h)
-
-    regularization = reg_factor * np.mean(theta*theta)/2 #only for the second half of the assignment
-
-    finalCost = np.mean(cost) + regularization
-    print(finalCost)
-    return finalCost
+    return null
 
 #write the gradient function here
 def gradient(theta, X,Y):
-    theta = np.reshape(theta,(785,10))
-    h = hypothesis(theta,X)
-    err = h-Y
-    grad = np.matmul(X.T,err)/X.shape[0] + reg_factor/X.shape[0]*theta
-    return grad
+    return None
 
 #only takes integers > 0
 def one_hot_encode(arr):
